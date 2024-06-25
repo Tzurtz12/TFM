@@ -6,13 +6,11 @@ from time import sleep
 from qcodes import load_or_create_experiment
 from qcodes import Parameter
 from qcodes import Measurement
-#from qcodes import LinSweep
 from tqdm import tqdm
-from qcodes.dataset import LinSweep
-from DAC_ADC import DAC_ADC
 
 
-exp = load_or_create_experiment(experiment_name='SETs_oscill', sample_name='test_sample')
+
+exp = load_or_create_experiment(experiment_name='barrier_conductance', sample_name='test_sample')
 
 
 
@@ -23,10 +21,10 @@ dac_adc.is_device_ready()
 
 ###################################################3
 
-# SET CONSTANT VOLTAGES OF THE DAC
+# SET CONSTANT VOLTAGES OF THE DAC: One barrier, Vds and Vg
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(1, 0)
-dac_adc.set_voltage(3, 0)
+dac_adc.set_voltage(2, 0)
 #####################################################
 
 #####################################################
@@ -34,8 +32,9 @@ dac_adc.set_voltage(3, 0)
 # REGISTER THE PARAMETER FOR QCODES PLOTTING
 
 meas = Measurement(exp=exp, station=station)
-dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(2, val),get_cmd=None)
+dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(3, val),get_cmd=None)
 meas.register_parameter(dac_voltage)
+
 meas.register_parameter(li.R,setpoints=(dac_voltage,),paramtype='array')
 
 #####################################################
@@ -45,8 +44,9 @@ meas.register_parameter(li.R,setpoints=(dac_voltage,),paramtype='array')
 
 # SET THE INITIAL VALUES OF THE LOCK-IN AMPLIFIER SENSITIVITY
 
-li.amplitude(0.066) #To get a 100 uV AC signal
-li.time_constant(300e-3) 
+#initial_val = 0.007
+li.amplitude(0.066)
+li.time_constant(300e-3)
 sleep(1)
 sensitivity_volt = {
         2e-9: 0,
@@ -120,13 +120,17 @@ li.sensitivity(1e-9)
 
 
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(-1.2,1.2,200)):
+    for set_point in tqdm(np.linspace(0,1.5,200)):
         dac_voltage(set_point)
         sleep(0.1)
         x.append(set_point)
         y.append(li.R())
         if li.sensitivity() <= 1.15*li.R() and i < 26:
             i+=1
+            li.sensitivity(sensitivity_list[i])
+            sleep(0.1)
+        elif li.R() < 0.1 * li.sensitivity() and i > 0:
+            i-=1
             li.sensitivity(sensitivity_list[i])
             sleep(0.1)
         datasaver.add_result((dac_voltage,set_point),(li.R,li.R())) 
@@ -139,16 +143,11 @@ with meas.run() as datasaver:
 
 # SAVE THE DATA FOR MATPLOTLIBÇ
 
-
-
-
 combined1 = np.column_stack((x,y))
 # combined2 = np.column_stack((x1,y2))
-np.savetxt('./GRAPHS/mosfet_28k.txt',combined1) #Introduce the name for the experiment
+np.savetxt('./GRAPHS/mosfet_28k.txt',combined1)
 # np.savetxt('./GRAPHS/combined2.txt',combined2)
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(2, 0)
-dac_adc.set_voltage(3, 0)
-dac_adc.set_voltage(1, 0)
 dac_adc.close()
 

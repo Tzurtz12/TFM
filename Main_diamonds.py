@@ -8,11 +8,9 @@ from qcodes import Parameter
 from qcodes import Measurement
 #from qcodes import LinSweep
 from tqdm import tqdm
-from qcodes.dataset import LinSweep
-from DAC_ADC import DAC_ADC
 
 
-exp = load_or_create_experiment(experiment_name='lockin_test', sample_name='test_sample')
+exp = load_or_create_experiment(experiment_name='SETs_diamonds', sample_name='test_sample')
 
 
 
@@ -21,19 +19,25 @@ exp = load_or_create_experiment(experiment_name='lockin_test', sample_name='test
 dac_adc.get_device_id()
 dac_adc.is_device_ready()
 
+# CONSTANT VOLTAGES OF THE DAC
+dac_adc.set_voltage(0, 0)
+dac_adc.set_voltage(1, 0)
+dac_adc.set_voltage(3, 0)
 
+ #####################################################
 
-
+# SET THE PARAMETER FOR QCODES PLOTTING
 meas = Measurement(exp=exp, station=station)
 dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
 meas.register_parameter(dac_voltage)
 dac_voltage2 = Parameter('dac_voltage2', set_cmd=lambda val: dac_adc.set_voltage(2, val),get_cmd=None)
 meas.register_parameter(dac_voltage2)
-adc_voltage = Parameter('adc_voltage', get_cmd=lambda: dac_adc.get_adc_voltage(3))
-meas.register_parameter(li.amplitude,paramtype='array')
-meas.register_parameter(adc_voltage,setpoints=(dac_voltage,dac_voltage2))
+meas.register_parameter(li.R,setpoints=(dac_voltage,dac_voltage2),paramtype='array')
 
-meas.register_parameter(li.R,setpoints=(li.amplitude,),paramtype='array')
+#####################################################
+
+
+# SET THE INITIAL VALUES OF THE LOCK-IN AMPLIFIER SENSITIVITY
 initial_val = 0.007
 li.amplitude(initial_val)
 sleep(1)
@@ -97,40 +101,41 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_volt.keys())
+
 i = 11
 x1 = []
 x2 = []
 y  = []
+
 li.sensitivity(sensitivity_list[i])
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(initial_val,4,10)):
+    for set_point in tqdm(np.linspace(-0.001,0.001,20)):
         dac_voltage(set_point)
-        for set_point2 in np.linspace(0,4,20):
-            #li.amplitude(set_point)
+        sleep(0.1)
+        for set_point2 in tqdm(np.linspace(0,2,2000)):
             dac_voltage2(set_point2)
             sleep(0.1)
-            if set_point2 >2 and set_point > 2:
-                dac_adc.set_voltage(3, 0.5)
-                sleep(0.1)
-            else:
-                dac_adc.set_voltage(3, np.random.rand()/2)
-                sleep(0.1)
-            
-            adc_val =adc_voltage()
             x2.append(set_point)
             x1.append(set_point2)
-            y.append(adc_val)
-            # if li.sensitivity() <= 1.15*li.R() and i < 26:
-            #     i+=1
-            #     li.sensitivity(sensitivity_list[i])
-            #     sleep(0.1)
-            #datasaver.add_result((li.amplitude,set_point),(li.R,li.R())) 
-            datasaver.add_result((dac_voltage,set_point),(dac_voltage2,set_point2),(adc_voltage,adc_val)) 
+            y.append(li.R())
+            if li.sensitivity() <= 1.15*li.R() and i < 26:
+                i+=1
+                li.sensitivity(sensitivity_list[i])
+                sleep(0.1)
+            datasaver.add_result((dac_voltage,set_point),(dac_voltage2,set_point2),(li.R,li.R())) 
+
+
+
 
 combined1 = np.column_stack((x1,x2,y))
 # combined2 = np.column_stack((x1,y2))
 np.savetxt('./GRAPHS/diamonds1.txt',combined1)
 # np.savetxt('./GRAPHS/combined2.txt',combined2)
 
+
+dac_adc.set_voltage(0, 0)
+dac_adc.set_voltage(1, 0)
+dac_adc.set_voltage(2, 0)
+dac_adc.set_voltage(3, 0)
 dac_adc.close()
 
