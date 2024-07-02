@@ -105,10 +105,10 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_curr.keys())
-i = 13
+i = 16
 x = []
 y  = []
-li.sensitivity(50e-12)
+li.sensitivity(500e-12)
 
 #####################################################
 
