@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from datetime import datetime
+from tqdm import tqdm
 
 #ser = serial.Serial('/dev/ttyACM0',115200,timeout=1) #Find serial port
 ser = serial.Serial('COM10',115200,timeout=1) #Find serial port
@@ -102,17 +103,19 @@ def buffer_ramp(dac_channels, adc_channels, initial_voltages, final_voltages, nu
     command = "BUFFER_RAMP\n,\n"+dac_channel_str+"\n,\n"+adc_channel_str+"\n,\n"+initial_voltages_str+"\n,\n"+final_voltages_str+"\n,\n"+num_steps+"\n,\n"+delay_microseconds+"\n,\n"+num_readings_to_avg+"\n\r"
     ser.write(command.encode())
     print((ser.readline()).decode('utf-8', errors='ignore'))
-    
 
+def convert_time(channel,time):
+    channel = str(channel)
+    time=str(time)
+    command = "CONVERT_TIME\n,\n"+channel+"\n,\n"+time+"\n\r"
+    ser.write(command.encode())
 
+is_device_ready()
+get_device_id()
 
-
+set_voltage(0,0)
 set_voltage(1,0)
 set_voltage(2,0)
 set_voltage(3,0)
-set_voltage(0,0)
-sleep(0.5)
-get_adc_voltage(2)
-
 ser.close()
 print("ended")

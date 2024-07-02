@@ -1,7 +1,7 @@
 #import serial
 import matplotlib.pyplot as plt
 import numpy as np
-from my_devs import li,station, dac_adc
+from my_devs import li,station, dac_adc, agilent
 from time import sleep
 from qcodes import load_or_create_experiment
 from qcodes import Parameter
@@ -10,7 +10,7 @@ from qcodes import Measurement
 from tqdm import tqdm
 
 
-exp = load_or_create_experiment(experiment_name='SETs_diamonds', sample_name='test_sample')
+exp = load_or_create_experiment(experiment_name='SETs_diamonds', sample_name='1 left 25K')
 
 
 
@@ -20,9 +20,11 @@ dac_adc.get_device_id()
 dac_adc.is_device_ready()
 
 # CONSTANT VOLTAGES OF THE DAC
-dac_adc.set_voltage(0, 0)
-dac_adc.set_voltage(1, 0)
-dac_adc.set_voltage(3, 0)
+dac_adc.set_voltage(0, 0) # lead gate 
+dac_adc.set_voltage(1, 0) 
+dac_adc.set_voltage(2, 0.43) # Barrier 1
+dac_adc.set_voltage(3, 0.37) # Barrier 2
+agilent.set_offset(-1.5e-3)
 
  #####################################################
 
@@ -30,17 +32,15 @@ dac_adc.set_voltage(3, 0)
 meas = Measurement(exp=exp, station=station)
 dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
 meas.register_parameter(dac_voltage)
-dac_voltage2 = Parameter('dac_voltage2', set_cmd=lambda val: dac_adc.set_voltage(2, val),get_cmd=None)
-meas.register_parameter(dac_voltage2)
-meas.register_parameter(li.R,setpoints=(dac_voltage,dac_voltage2),paramtype='array')
+sd_offset = Parameter('sd_offset', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
+meas.register_parameter(sd_offset)
+meas.register_parameter(li.R,setpoints=(sd_offset,dac_voltage),paramtype='array')
 
 #####################################################
 
 
 # SET THE INITIAL VALUES OF THE LOCK-IN AMPLIFIER SENSITIVITY
-initial_val = 0.007
-li.amplitude(initial_val)
-sleep(1)
+
 sensitivity_volt = {
         2e-9: 0,
         5e-9: 1,
@@ -100,39 +100,51 @@ sensitivity_curr = {
         1e-6: 26,
     }
 
-sensitivity_list = list(sensitivity_volt.keys())
+sensitivity_list = list(sensitivity_curr.keys())
+li.time_constant(0.3)
 
-i = 11
+i = 12
+li.sensitivity(sensitivity_list[i])
+
 x1 = []
 x2 = []
 y  = []
-
-li.sensitivity(sensitivity_list[i])
+print("a")
+for val in np.linspace(0, 1, 10):
+    dac_voltage(val)
+print("v")
+sleep(3)
+print("b")
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(-0.001,0.001,20)):
-        dac_voltage(set_point)
-        sleep(0.1)
-        for set_point2 in tqdm(np.linspace(0,2,2000)):
-            dac_voltage2(set_point2)
-            sleep(0.1)
-            x2.append(set_point)
-            x1.append(set_point2)
+    for set_point in tqdm(np.linspace(-1.5e-3,1.5e-3,10)):
+        sd_offset(set_point)
+        sleep(0.3)
+        for set_point2 in tqdm(np.linspace(1,1.5,50)):
+            dac_voltage(set_point2)
+            sleep(0.4)
+            x1.append(set_point*2)
+            x2.append(set_point2)
             y.append(li.R())
-            if li.sensitivity() <= 1.15*li.R() and i < 26:
+            if li.sensitivity() <= 1.5*li.R() and i < 26:
                 i+=1
                 li.sensitivity(sensitivity_list[i])
                 sleep(0.1)
-            datasaver.add_result((dac_voltage,set_point),(dac_voltage2,set_point2),(li.R,li.R())) 
+            datasaver.add_result((sd_offset,set_point),(dac_voltage,set_point2),(li.R,li.R()))
+        for val in np.linspace(1.5, 1, 10):
+            dac_voltage(val) 
 
 
 
 
 combined1 = np.column_stack((x1,x2,y))
 # combined2 = np.column_stack((x1,y2))
-np.savetxt('./GRAPHS/diamonds1.txt',combined1)
+np.savetxt('./GRAPHS/SET/diamonds1.txt',combined1)
 # np.savetxt('./GRAPHS/combined2.txt',combined2)
 
-
+for val in np.linspace(1.5e-3, 0, 100):
+    sd_offset(val)
+for val in np.linspace(1, 0, 10):
+    dac_voltage(val)
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(1, 0)
 dac_adc.set_voltage(2, 0)

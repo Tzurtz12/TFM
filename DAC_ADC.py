@@ -13,6 +13,7 @@ class DAC_ADC:
         #ser = serial.Serial('/dev/ttyACM0',115200,timeout=1) #Find serial port Linux
         self.ser = serial.Serial(port, baudrate, timeout=timeout)
         time.sleep(2)
+        print("DAC-ADC device serial port opened.")
         if not self.ser.isOpen():
             print("Serial port not open, trying to open it...")
             self.ser.open()
@@ -59,6 +60,10 @@ class DAC_ADC:
         command = f"BUFFER_RAMP\n,\n{dac_channel_str}\n,\n{adc_channel_str}\n,\n{initial_voltages_str}\n,\n{final_voltages_str}\n,\n{num_steps}\n,\n{delay_microseconds}\n,\n{num_readings_to_avg}\n\r"
         self.ser.write(command.encode())
         print((self.ser.readline()).decode('utf-8', errors='ignore'))
+    
+    def convert_time(self,channel,time):
+        command = f"CONVERT_TIME\n,\n{channel}\n,\n{time}\n\r"
+        self.ser.write(command.encode())
     
     def close(self):
         self.ser.close()

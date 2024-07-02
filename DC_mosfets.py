@@ -8,8 +8,9 @@ from qcodes import Measurement
 from tqdm import tqdm
 
 
-exp = load_or_create_experiment(experiment_name='MOSFETs', sample_name='test_sample')
+#exp = load_or_create_experiment(experiment_name='MOSFETs_cold', sample_name='old sample 25K')
 
+exp = load_or_create_experiment(experiment_name='new 3', sample_name='270 K')
 
 
 
@@ -20,6 +21,9 @@ dac_adc.is_device_ready()
 
 # SET CONSTANT VOLTAGES OF THE DAC
 dac_adc.set_voltage(2, 0)
+
+dac_adc.convert_time(2,2500)
+
 #####################################################
 
 #####################################################
@@ -43,16 +47,19 @@ meas.register_parameter(adc_voltage,setpoints=(dac_voltage,))
 x = []
 y  = []
 
+
 # START THE MEASUREMENT
 
 
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(-1,1,50)):
+    for set_point in tqdm(np.linspace(-2,2,100)):
         dac_voltage(set_point)
-        sleep(0.1)
+        sleep(0.3)
         x.append(set_point)
-        y.append(adc_voltage())
+        #y.append(adc_voltage()*1e-5)
+        y.append(adc_voltage()*1e-6)
         datasaver.add_result((dac_voltage,set_point),(adc_voltage,adc_voltage()))
+        
 
 #####################################################
 
@@ -62,8 +69,7 @@ with meas.run() as datasaver:
 # SAVE THE DATA FOR MATPLOTLIB
 
 combined1 = np.column_stack((x,y))
-np.savetxt('./GRAPHS/MOSFET/outside_4u.txt',combined1) #For the name: Pressure, temperature and channel length(new/old design)
+np.savetxt('./GRAPHS/MOSFET/new_3_left_270K.txt',combined1) #For the name: Pressure, temperature and channel length(new/old design)
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(2, 0)
 dac_adc.close()
-

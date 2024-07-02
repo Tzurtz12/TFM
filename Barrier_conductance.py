@@ -10,7 +10,7 @@ from tqdm import tqdm
 
 
 
-exp = load_or_create_experiment(experiment_name='barrier_conductance', sample_name='test_sample')
+exp = load_or_create_experiment(experiment_name='barrier_conductance', sample_name='Left 298K')
 
 
 
@@ -19,12 +19,13 @@ exp = load_or_create_experiment(experiment_name='barrier_conductance', sample_na
 dac_adc.get_device_id()
 dac_adc.is_device_ready()
 
-###################################################3
+###################################################
 
 # SET CONSTANT VOLTAGES OF THE DAC: One barrier, Vds and Vg
-dac_adc.set_voltage(0, 0)
-dac_adc.set_voltage(1, 0)
-dac_adc.set_voltage(2, 0)
+for val in np.linspace(0,1.5,10):
+    dac_adc.set_voltage(0,val) #lead gate
+dac_adc.set_voltage(3,0) #barrier 2
+dac_adc.set_voltage(2, 0) # Barrier 1
 #####################################################
 
 #####################################################
@@ -32,10 +33,11 @@ dac_adc.set_voltage(2, 0)
 # REGISTER THE PARAMETER FOR QCODES PLOTTING
 
 meas = Measurement(exp=exp, station=station)
-dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(3, val),get_cmd=None)
+dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(2, val),get_cmd=None)
 meas.register_parameter(dac_voltage)
-
-meas.register_parameter(li.R,setpoints=(dac_voltage,),paramtype='array')
+dac_voltage2 = Parameter('dac_voltage2', set_cmd=lambda val: dac_adc.set_voltage(3, val),get_cmd=None)
+meas.register_parameter(dac_voltage2)
+meas.register_parameter(li.R,setpoints=(dac_voltage,dac_voltage2),paramtype='array')
 
 #####################################################
 
@@ -44,10 +46,8 @@ meas.register_parameter(li.R,setpoints=(dac_voltage,),paramtype='array')
 
 # SET THE INITIAL VALUES OF THE LOCK-IN AMPLIFIER SENSITIVITY
 
-#initial_val = 0.007
-li.amplitude(0.066)
-li.time_constant(300e-3)
-sleep(1)
+
+li.time_constant(0.3)
 sensitivity_volt = {
         2e-9: 0,
         5e-9: 1,
@@ -108,46 +108,54 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_curr.keys())
-i = 23
-x = []
+i = 16
+x1 = []
+x2 = []
 y  = []
-li.sensitivity(1e-9)
+li.sensitivity(100e-12)
 
 
 #####################################################
 
 # START THE MEASUREMENT
+init = -0.1
+final = 0.1
+
+
 
 
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(0,1.5,200)):
+    for set_point in tqdm(np.linspace(init,final,10)):
         dac_voltage(set_point)
-        sleep(0.1)
-        x.append(set_point)
-        y.append(li.R())
-        if li.sensitivity() <= 1.15*li.R() and i < 26:
-            i+=1
-            li.sensitivity(sensitivity_list[i])
-            sleep(0.1)
-        elif li.R() < 0.1 * li.sensitivity() and i > 0:
-            i-=1
-            li.sensitivity(sensitivity_list[i])
-            sleep(0.1)
-        datasaver.add_result((dac_voltage,set_point),(li.R,li.R())) 
-        #datasaver.add_result((dac_voltage,set_point),(adc_voltage,adc_voltage()))
+        for set_point2 in tqdm(np.linspace(init,final,10)):
+            dac_voltage2(set_point2)
+            sleep(0.3)
+            x1.append(set_point)
+            x2.append(set_point2)
+            y.append(li.R())
+            if li.sensitivity() <= 1.5*li.R():
+                i+=1
+                li.sensitivity(sensitivity_list[i])
+                sleep(0.1)
+            datasaver.add_result((dac_voltage,set_point),(dac_voltage2,set_point2),(li.R,li.R()))
+        for val in np.linspace(final, init, 10):
+            dac_voltage(val) 
 
 #####################################################
 
 
 #####################################################
 
-# SAVE THE DATA FOR MATPLOTLIBÇ
+# SAVE THE DATA FOR MATPLOTLIB
 
-combined1 = np.column_stack((x,y))
+combined1 = np.column_stack((x1,x2,y))
 # combined2 = np.column_stack((x1,y2))
-np.savetxt('./GRAPHS/mosfet_28k.txt',combined1)
+np.savetxt('./GRAPHS/SET/barrier1_left.txt',combined1)
 # np.savetxt('./GRAPHS/combined2.txt',combined2)
-dac_adc.set_voltage(0, 0)
-dac_adc.set_voltage(2, 0)
+
+for val in np.linspace(1.5,0,10):
+    dac_adc.set_voltage(0,val)
+for val in np.linspace(final,0,10):
+    dac_adc.set_voltage(2,val)
 dac_adc.close()
 

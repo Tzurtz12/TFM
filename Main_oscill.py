@@ -1,22 +1,17 @@
 #import serial
-import matplotlib.pyplot as plt
 import numpy as np
-from my_devs import li,station, dac_adc
+from my_devs import li,station, dac_adc, agilent
 from time import sleep
 from qcodes import load_or_create_experiment
 from qcodes import Parameter
 from qcodes import Measurement
-#from qcodes import LinSweep
 from tqdm import tqdm
-from qcodes.dataset import LinSweep
-from DAC_ADC import DAC_ADC
 
 
-exp = load_or_create_experiment(experiment_name='SETs_oscill', sample_name='test_sample')
+exp = load_or_create_experiment(experiment_name='SETs gate Vds = 0.1 V', sample_name='Device 1 25K')
 
 
 
-#dac_adc = DAC_ADC(port='COM10', baudrate=115200, timeout=1)
 
 dac_adc.get_device_id()
 dac_adc.is_device_ready()
@@ -24,9 +19,11 @@ dac_adc.is_device_ready()
 ###################################################3
 
 # SET CONSTANT VOLTAGES OF THE DAC
-dac_adc.set_voltage(0, 0)
-dac_adc.set_voltage(1, 0)
-dac_adc.set_voltage(3, 0)
+dac_adc.set_voltage(0, 0) # lead gate 
+dac_adc.set_voltage(1, 0) # Bulk  
+dac_adc.set_voltage(2, 0) # Barrier 1
+dac_adc.set_voltage(3, 0) # Barrier 2
+agilent.set_offset(0.1)
 #####################################################
 
 #####################################################
@@ -34,9 +31,11 @@ dac_adc.set_voltage(3, 0)
 # REGISTER THE PARAMETER FOR QCODES PLOTTING
 
 meas = Measurement(exp=exp, station=station)
-dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(2, val),get_cmd=None)
-meas.register_parameter(dac_voltage)
-meas.register_parameter(li.R,setpoints=(dac_voltage,),paramtype='array')
+# dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
+# meas.register_parameter(dac_voltage)
+gate_voltage = Parameter('gate_voltage', set_cmd=lambda val: dac_adc.set_voltage(0,val),get_cmd=None)
+meas.register_parameter(gate_voltage)
+meas.register_parameter(li.R,setpoints=(gate_voltage,),paramtype='array')
 
 #####################################################
 
@@ -45,9 +44,8 @@ meas.register_parameter(li.R,setpoints=(dac_voltage,),paramtype='array')
 
 # SET THE INITIAL VALUES OF THE LOCK-IN AMPLIFIER SENSITIVITY
 
-li.amplitude(0.066) #To get a 100 uV AC signal
-li.time_constant(300e-3) 
-sleep(1)
+#li.amplitude(0.66) #To get a 100 uV AC signal
+li.time_constant(0.3) 
 sensitivity_volt = {
         2e-9: 0,
         5e-9: 1,
@@ -108,28 +106,32 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_curr.keys())
-i = 23
+i = 11
 x = []
 y  = []
-li.sensitivity(1e-9)
-
+li.sensitivity(10e-12)
 
 #####################################################
 
 # START THE MEASUREMENT
-
-
+init = -1
+final = 1
+# for val in np.linspace(0, init, 10):
+#      source_voltage(val)
+gate_voltage(init)
+sleep(180)
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(-1.2,1.2,200)):
-        dac_voltage(set_point)
-        sleep(0.1)
+    for set_point in tqdm(np.linspace(init, final,100)):
+        gate_voltage(set_point)
+        sleep(1.5)
         x.append(set_point)
         y.append(li.R())
-        if li.sensitivity() <= 1.15*li.R() and i < 26:
-            i+=1
+        if li.sensitivity() <= 2*li.R():
+            i += 1
             li.sensitivity(sensitivity_list[i])
-            sleep(0.1)
-        datasaver.add_result((dac_voltage,set_point),(li.R,li.R())) 
+            sleep(1)
+        sleep(0.1)
+        datasaver.add_result((gate_voltage,set_point),(li.R,li.R())) 
         #datasaver.add_result((dac_voltage,set_point),(adc_voltage,adc_voltage()))
 
 #####################################################
@@ -137,15 +139,17 @@ with meas.run() as datasaver:
 
 #####################################################
 
-# SAVE THE DATA FOR MATPLOTLIBÇ
+# SAVE THE DATA FOR MATPLOTLIB
 
 
 
 
 combined1 = np.column_stack((x,y))
 # combined2 = np.column_stack((x1,y2))
-np.savetxt('./GRAPHS/mosfet_28k.txt',combined1) #Introduce the name for the experiment
+np.savetxt('./GRAPHS/SET/25k_gate_2.txt',combined1) #Introduce the name for the experiment
 # np.savetxt('./GRAPHS/combined2.txt',combined2)
+for val in np.linspace(final, 0, 10):
+    gate_voltage(val)
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(2, 0)
 dac_adc.set_voltage(3, 0)
