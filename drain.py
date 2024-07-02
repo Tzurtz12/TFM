@@ -8,7 +8,7 @@ from qcodes import Measurement
 from tqdm import tqdm
 
 
-exp = load_or_create_experiment(experiment_name='SETs source-bulk 298 K', sample_name='right')
+exp = load_or_create_experiment(experiment_name='SETs source-bulk 298 K', sample_name='left')
 
 
 
@@ -32,9 +32,9 @@ dac_adc.set_voltage(3, 0) # Barrier 2
 meas = Measurement(exp=exp, station=station)
 # dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
 # meas.register_parameter(dac_voltage)
-source_voltage = Parameter('source_voltage', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
-meas.register_parameter(source_voltage)
-meas.register_parameter(li.R,setpoints=(source_voltage,),paramtype='array')
+drain_voltage = Parameter('drain_voltage', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
+meas.register_parameter(drain_voltage)
+meas.register_parameter(li.R,setpoints=(drain_voltage,),paramtype='array')
 
 #####################################################
 
@@ -105,10 +105,10 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_curr.keys())
-i = 13
+i = 16
 x = []
 y  = []
-li.sensitivity(50e-12)
+li.sensitivity(500e-12)
 
 #####################################################
 
@@ -144,7 +144,7 @@ with meas.run() as datasaver:
 
 
 combined1 = np.column_stack((x,y))
-np.savetxt('./GRAPHS/SET/source_bulk298_right.txt',combined1) #Introduce the name for the experiment
+np.savetxt('./GRAPHS/SET/source_bulk298_left.txt',combined1) #Introduce the name for the experiment
 
 for val in np.linspace(final, 0, 10):
     source_voltage(val)
