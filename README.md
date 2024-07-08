@@ -115,6 +115,7 @@ While the cryostat was getting cooled down, we performed $V_{ds}$ sweeps to try 
 ![$V_{ds}$ vs $I_{ds}$ at room temperature 298 K](./images/punch_through.png)
 |:--:|
 | $V_{ds}$ vs $I_{ds}$ at room temperature 298 K |
+
 ![$V_{ds}$ vs $I_{ds}$ at 60 K](./images/punch_through_60K.png)
 |:--:|
 | $V_{ds}$ vs $I_{ds}$ at 60 K |
@@ -123,6 +124,7 @@ When reducing the temperature to 25 \textbf{K} we repeated the resistivity proce
 ![Source-Bulk current vs $V_{s}](./images/source_bulka.png)
 |:--:|
 | Source-Bulk current vs $V_{s}$ |
+
 ![Drain-Bulk current vs $V_{d}](./images/drain_bulka.png)
 |:--:|
 | Drain-Bulk current vs $V_{d}$ |
@@ -139,6 +141,7 @@ Device on the left:
 ![$V_{s}vs$I_{b}](./images/left_sourcebulk_298k.png)
 |:--:|
 | $V_{s}$ vs $I_{b}$ |
+
 ![$V_{d}vs$I_{b}](./images/left_drainbulk_298k.png)
 |:--:|
 | $V_{d}$ vs $I_{b}$ |
@@ -148,6 +151,7 @@ Device on the right
 ![$V_{s}vs$I_{b}](./images/right_sourcebulk_298k.png)
 |:--:|
 | $V_{d}$ vs $I_{b}$ |
+
 ![$V_{s}vs$I_{b}](./images/right_drainbulk_298k.png)
 |:--:|
 | $V_{d}$ vs $I_{b}$ |
