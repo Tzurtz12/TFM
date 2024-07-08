@@ -12,53 +12,55 @@ During my TFM three different wafers have been measured with different I/V chara
 We performed DC I/V sweeps to check the functionality of the MOSFETs from the first wafer and realized the gate contact was not properly opened, as it didn't reached the active area. Thus, when performing a gate voltage sweep we would only measure noise.
 ![old g](./images/oldg.png)
 |:--:|
-| *Source, drain and gate current vs $V_{g}$* |
+| Source, drain and gate current vs $V_{g}$ |
 However, the source-to drain current coul be visualized:
 ![old sd](./images/oldsd.png)
 |:--:|
-| *Source, drain and gate current vs $V_{sd}$* |
+| Source, drain and gate current vs $V_{sd}$ |
 This was done with a semiconductor device analizer so there is no code in the repository employed for this sweeps.
 
 ### Wafer 2 characteristics:
 After some improvements in the fabrication, the gate contact was opened but not properly, as it can beseen in the graphs below, most of the current was lost through the gate,a s if source and gate would be short-circuited. This could happen due to sputtering methods leaving underised metallic residues in the active area as lift-off could not take it away.
 ![new g](./images/newg.png)
 |:--:|
-| *Source, drain and gate current vs $V_{g}$* |
+| Source, drain and gate current vs $V_{g}$ |
 However, the source-to drain current coul be visualized:
 ![new sd](./images/newsd.png)
 |:--:|
-| *Source, drain and gate current vs $V_{sd}$* |
+| Source, drain and gate current vs $V_{sd}$ |
 
 As it can be seen, in both cases the gate current reaches compliance. This might also be due to wire-bonding not being good and breaking the field oxide short-circuiting bulk and gate.
 ### Wafer 3 characteristics:
 More fabrication improvements were finally enough to create functional MOSFETs. This were nonetheless measured in a probe station at 13 K, so the problems of wire-bonded samples might still appear:
 ![new g](./images/dc_gate_sweep_13K.png)
 |:--:|
-| *Source current vs $V_{g}$ for different $V_{ds}$. Log y axis* |
+| Source current vs $V_{g}$ for different $V_{ds}$. Log y axis |
 However, the source-to drain current coul be visualized:
 ![new sd](./images/dc_sourcedrain_sweep_13K.png)
 |:--:|
-| *Source current vs $V_{sd}$ for different $V_{g}$.  Log y axis* |
+| Source current vs \V_{sd} for different $V_{g}$.  Log y axis |
 
 As this MOSFETs show proper behaviour, it is expected that the SETs will also show good lead gate modulation.
 
 # SET characterization
 As SET characterization involves complex setups, it is useful to test it before with other semiconductor devices, such as functional MOSFETs, to be sure it the station is ready to be used for SETs. Therefore, we tested the following setup to measure differential conductance of MOSFET devices at gate voltage sweeps.
-![mosfet bias tee](./images/dc_sourcedrain_sweep_13K.png)
+
+![mosfet bias tee](./images/mosfet_lockin_biastee.png)
 |:--:|
 | *Setup for 101 kHz* |
+
 As a bias-tee is employed to couple DC and AC, the lock-in signal's freqeuncy must be bigger than 100 kHz, which is not ideal. Due to probe noise we introduced a 10 mV AC amplitude and measure.
 ![mosfet manual](./images/lockin.png)
 |:--:|
-| *Lock-in conductance and DC current vs $V_{g}$. $V_{ds}=510$ mV and $V_{AC}=10 mV$. * |
+| Lock-in conductance and DC current vs $V_{g}$. $V_{ds}=510$ mV and $V_{AC}=10 mV$. |
 To measure the characteristics at lower frequencies, we take the bias tee out, but perform the gate sweep manually:
-![mosfet bias tee](./images/dc_sourcedrain_sweep_13K.png)
+![mosfet bias tee](./images/mosfet_lockin.png)
 |:--:|
 | *Setup for 171 Hz* |
 This case, we applied a 100 $\mu\text{V}$ and 171 Hz AC signal. Due to probe point movements (caused by the turbomolecular pump to create the ultra high vacuum) both signals look noisy.
 ![mosfet manual](./images/manual_13k_50mVsteps_210Vds.png)
 |:--:|
-| *Lock-in conductance and DC current vs $V_{g}$. $V_{ds}=230$ mV and $V_{AC}=100 \mu V$.* |
+| Lock-in conductance and DC current vs $V_{g}$. $V_{ds}=230$ mV and $V_{AC}=100 \mu V$. |
 
 
 ## Characterization at UB
