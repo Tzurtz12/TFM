@@ -97,7 +97,7 @@ To get the AC signal for the loc-in meaurements, at first we started by using th
 One of the problems we might get from the devies is the punch-through effect where, due to the big size of the depletion regions createn at the N-P junctions, a non desirable current channel can be created from source to drain. However, it was seen in simulations that this effect should be decreased with temperature. Thus, I performed several $V_{ds}$ sweeps with the same 4 $\mu\text{m}$ channel length MOSFET to see how the current varies. To do so, I left the gate lead in open circuit and got the following characteristic curves for different temperatures:
 ![MOSFET $I_{ds}$/$V_{ds}$ curves for different temperatures](./images/sweep_4micra.png)
 |:--:|
-| MOSFET $I_{ds}$/$V_{ds}$ curves for different temperatures |
+| MOSFET $I_{ds}$ vs $V_{ds}$ curves for different temperatures |
 
 
 ### Agilent_33220A class:
@@ -130,7 +130,7 @@ When reducing the temperature to 25 \textbf{K} we repeated the resistivity proce
 Finally, we performed lead gate voltage sweeps, by introducing a 1 $\text{M}\Omega$ resistance in the gates to reduce the current through them (to avoid burning the devices), however a higher impedances should be used, unfortunately we didn't have them available. A 100 \textbf{mV} constant Source to Drain voltage was applied and an interensting behavior was observed looking like the gate threshold voltage was around 0.6 \textbf{V}, but without anything certain as it looks too noisy.
 ![$V_{g}vs$I_{ds}](./images/gate_Vds100mV.png)
 |:--:|
-| $V_{g}$vs$I_{ds}$ |
+| $V_{g}$ vs $I_{ds}$ |
 
 The last thing I did with these devices was measureing the parasitic diode in room temperatures to see if something changed.
 
@@ -138,19 +138,19 @@ Device on the left:
 
 ![$V_{s}vs$I_{b}](./images/left_sourcebulk_298k.png)
 |:--:|
-| $V_{s}$vs$I_{b}$ |
+| $V_{s}$ vs $I_{b}$ |
 ![$V_{d}vs$I_{b}](./images/left_drainbulk_298k.png)
 |:--:|
-| $V_{d}$vs$I_{b}$ |
+| $V_{d}$ vs $I_{b}$ |
 
 Device on the right
 
 ![$V_{s}vs$I_{b}](./images/right_sourcebulk_298k.png)
 |:--:|
-| $V_{d}$vs$I_{b}$ |
+| $V_{d}$ vs $I_{b}$ |
 ![$V_{s}vs$I_{b}](./images/right_drainbulk_298k.png)
 |:--:|
-| $V_{d}$vs$I_{b}$ |
+| $V_{d}$ vs $I_{b}$ |
 
 It can be seen that the current value is decreased by an order of magnitude in room temperature. Clearly something wrong is going on with cold temperatures, devices might suffer with the setup.
 
