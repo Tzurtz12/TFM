@@ -122,15 +122,15 @@ While the cryostat was getting cooled down, we performed $V_{ds}$ sweeps to try 
 When reducing the temperature to 25 \textbf{K} we repeated the resistivity process and get unexpected results since for the device on the left it looked like infinite resistance and the one on the right remained the same when it shoul have been reduced due to temperature shift. Moreover, we tried to see the current lost through the bulk, seeing the magnitude of the differential conductance gets higher but without apparent changes through voltage sweeps:
 ![Source-Bulk current vs $V_{s}](./images/source_bulka.png)
 |:--:|
-| Source-Bulk current vs $V_{s} |
+| Source-Bulk current vs $V_{s}$ |
 ![Drain-Bulk current vs $V_{d}](./images/drain_bulka.png)
 |:--:|
-| Drain-Bulk current vs $V_{d} |
+| Drain-Bulk current vs $V_{d}$ |
 
 Finally, we performed lead gate voltage sweeps, by introducing a 1 $\text{M}\Omega$ resistance in the gates to reduce the current through them (to avoid burning the devices), however a higher impedances should be used, unfortunately we didn't have them available. A 100 \textbf{mV} constant Source to Drain voltage was applied and an interensting behavior was observed looking like the gate threshold voltage was around 0.6 \textbf{V}, but without anything certain as it looks too noisy.
 ![$V_{g}vs$I_{ds}](./images/gate_Vds100mV.png)
 |:--:|
-| $V_{g}vs$I_{ds} |
+| $V_{g}$vs$I_{ds}$ |
 
 The last thing I did with these devices was measureing the parasitic diode in room temperatures to see if something changed.
 
@@ -138,19 +138,19 @@ Device on the left:
 
 ![$V_{s}vs$I_{b}](./images/left_sourcebulk_298k.png)
 |:--:|
-| $V_{s}vs$I_{b} |
+| $V_{s}$vs$I_{b}$ |
 ![$V_{d}vs$I_{b}](./images/left_drainbulk_298k.png)
 |:--:|
-| $V_{d}vs$I_{b} |
+| $V_{d}$vs$I_{b}$ |
 
 Device on the right
 
 ![$V_{s}vs$I_{b}](./images/right_sourcebulk_298k.png)
 |:--:|
-| $V_{d}vs$I_{b} |
+| $V_{d}$vs$I_{b}$ |
 ![$V_{s}vs$I_{b}](./images/right_drainbulk_298k.png)
 |:--:|
-| $V_{d}vs$I_{b} |
+| $V_{d}$vs$I_{b}$ |
 
 It can be seen that the current value is decreased by an order of magnitude in room temperature. Clearly something wrong is going on with cold temperatures, devices might suffer with the setup.
 
