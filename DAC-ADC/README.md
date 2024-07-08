@@ -1,4 +1,4 @@
-![dac-adc](./dacadc.png)
+![dac-adc](./dacadc2.png)
 |:--:|
 | DAC-ADC |
 
