@@ -25,6 +25,7 @@ After some improvements in the fabrication, the gate contact was opened but not 
 |:--:|
 | Source, drain and gate current vs $V_{g}$ |
 However, the source-to drain current coul be visualized:
+
 ![new sd](./images/newsd.png)
 |:--:|
 | Source, drain and gate current vs $V_{sd}$ |
@@ -36,6 +37,7 @@ More fabrication improvements were finally enough to create functional MOSFETs. 
 |:--:|
 | Source current vs $V_{g}$ for different $V_{ds}$. Log y axis |
 However, the source-to drain current coul be visualized:
+
 ![new sd](./images/dc_sourcedrain_sweep_13K.png)
 |:--:|
 | Source current vs \V_{sd} for different $V_{g}$.  Log y axis |
@@ -52,14 +54,17 @@ As SET characterization involves complex setups, it is useful to test it before 
 | *Setup for 101 kHz* |
 
 As a bias-tee is employed to couple DC and AC, the lock-in signal's freqeuncy must be bigger than 100 kHz, which is not ideal. Due to probe noise we introduced a 10 mV AC amplitude and measure.
+
 ![mosfet manual](./images/lockin.png)
 |:--:|
 | Lock-in conductance and DC current vs $V_{g}$. $V_{ds}=510$ mV and $V_{AC}=10 mV$. |
 To measure the characteristics at lower frequencies, we take the bias tee out, but perform the gate sweep manually:
+
 ![mosfet bias tee](./images/mosfet_lockin.png)
 |:--:|
 | *Setup for 171 Hz* |
 This case, we applied a 100 $\mu\text{V}$ and 171 Hz AC signal. Due to probe point movements (caused by the turbomolecular pump to create the ultra high vacuum) both signals look noisy.
+
 ![mosfet manual](./images/manual_13k_50mVsteps_210Vds.png)
 |:--:|
 | Lock-in conductance and DC current vs $V_{g}$. $V_{ds}=230$ mV and $V_{AC}=100 \mu V$. |
@@ -105,7 +110,36 @@ Here I just built a simple class for the **Agilent_33220A** device. It is only u
 
 After measuring the values of the output signal with the lock-in I realized the peak to peak value stated in the is not exact. With the voltage divider of factor 667, we reduce the amplitude by 1000 more or less, so the peak to peak is slightly bigger than stated in the panel. The offset shown is also the double so we need to consider it when applying the voltage sweeps.
 
+## Characterization setups:
 
+The setups we prepared for SET characteristic measurement is the following. We need to take under consideration that the single electron phenomena might not be possible at 25 K. You can read the reasons in the pdf file at folder *Thesis*. In fact, that is my TFM memory. The setup was based on the work carried out by Angus et al at **Gate-Defined Quantum Dots in Intrinsic
+Silicon**.
+
+### Barrier conductance:
+
+![MOSFET $I_{ds}$/$V_{ds}$ curves for different temperatures](./images/barrier.png)
+|:--:|
+| Setup for barrier measurement |
+
+The objective of this experimental run is, once checking the MOSFETs are functional, the SET lead gate should modulate the current properly so the next step is confirming whether the barrier gates also do modulate the channel conductance properly. We should observe an increase of the conductance when the barriers achieve a threshold voltage. Here a only one of the barriers is sweeping, while mantaining the other barrier and the lead gate in high voltages (higher than threashold). We should observe something like the following measured by Angus et al:
+
+![barrier conductance](./images/barrier_angus.png)
+|:--:|
+| Barrier conductance |
+
+ This way, we can set the barrier voltage in a set point where conductance seems to be forbidden, so below threshold.
+### Coulomb diamonds and peaks:
+The setup for Coulomb diamonds is similar
+
+![setup diamonds](./images/gate.png)
+|:--:|
+| Setup for Coulomb peaks and diamonds |
+
+Based on Angus et al, the diamonds should look like:
+
+![setup diamonds](./images/diamonds.png)
+|:--:|
+| Coulomb diamonds |
 
 ## Characterization 01/07 with Gorka
 
