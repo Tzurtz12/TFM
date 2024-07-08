@@ -1,4 +1,6 @@
-#import serial
+'''
+File to perform 2D plots to visualize Coulomb diamonds in SETs.
+'''
 import matplotlib.pyplot as plt
 import numpy as np
 from my_devs import li,station, dac_adc, agilent
@@ -6,7 +8,6 @@ from time import sleep
 from qcodes import load_or_create_experiment
 from qcodes import Parameter
 from qcodes import Measurement
-#from qcodes import LinSweep
 from tqdm import tqdm
 
 
@@ -14,27 +15,26 @@ exp = load_or_create_experiment(experiment_name='SETs_diamonds', sample_name='1 
 
 
 
-#dac_adc = DAC_ADC(port='COM10', baudrate=115200, timeout=1)
 
 dac_adc.get_device_id()
 dac_adc.is_device_ready()
 
 # CONSTANT VOLTAGES OF THE DAC
-dac_adc.set_voltage(0, 0) # lead gate 
-dac_adc.set_voltage(1, 0) 
+dac_adc.set_voltage(0, 0) # Source
+dac_adc.set_voltage(1, 0) # Bulk
 dac_adc.set_voltage(2, 0.43) # Barrier 1
 dac_adc.set_voltage(3, 0.37) # Barrier 2
-agilent.set_offset(-1.5e-3)
+agilent.set_offset(-1.5e-3) # gate voltage
 
  #####################################################
 
 # SET THE PARAMETER FOR QCODES PLOTTING
 meas = Measurement(exp=exp, station=station)
-dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
-meas.register_parameter(dac_voltage)
-sd_offset = Parameter('sd_offset', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
-meas.register_parameter(sd_offset)
-meas.register_parameter(li.R,setpoints=(sd_offset,dac_voltage),paramtype='array')
+sd_voltage = Parameter('sd_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
+meas.register_parameter(sd_voltage)
+gate_voltage = Parameter('gate_voltage', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
+meas.register_parameter(gate_voltage)
+meas.register_parameter(li.R,setpoints=(gate_voltage,sd_voltage),paramtype='array')
 
 #####################################################
 
@@ -109,12 +109,9 @@ li.sensitivity(sensitivity_list[i])
 x1 = []
 x2 = []
 y  = []
-print("a")
 for val in np.linspace(0, 1, 10):
     dac_voltage(val)
-print("v")
 sleep(3)
-print("b")
 with meas.run() as datasaver:
     for set_point in tqdm(np.linspace(-1.5e-3,1.5e-3,10)):
         sd_offset(set_point)
@@ -137,9 +134,7 @@ with meas.run() as datasaver:
 
 
 combined1 = np.column_stack((x1,x2,y))
-# combined2 = np.column_stack((x1,y2))
 np.savetxt('./GRAPHS/SET/diamonds1.txt',combined1)
-# np.savetxt('./GRAPHS/combined2.txt',combined2)
 
 for val in np.linspace(1.5e-3, 0, 100):
     sd_offset(val)

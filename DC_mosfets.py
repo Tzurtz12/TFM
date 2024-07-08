@@ -1,4 +1,6 @@
-
+'''
+File to perform DC sweeps to measure punch-through effect at MOSFETs
+'''
 import numpy as np
 from my_devs import station, dac_adc
 from time import sleep
@@ -46,7 +48,7 @@ meas.register_parameter(adc_voltage,setpoints=(dac_voltage,))
 
 x = []
 y  = []
-
+sensitivity = 1e-6
 
 # START THE MEASUREMENT
 
@@ -56,8 +58,7 @@ with meas.run() as datasaver:
         dac_voltage(set_point)
         sleep(0.3)
         x.append(set_point)
-        #y.append(adc_voltage()*1e-5)
-        y.append(adc_voltage()*1e-6)
+        y.append(adc_voltage()*sensitivity)
         datasaver.add_result((dac_voltage,set_point),(adc_voltage,adc_voltage()))
         
 

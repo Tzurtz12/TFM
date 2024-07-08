@@ -1,4 +1,6 @@
-#import serial
+'''
+Source-drain measurement for the SETs. Similar to barrier file.
+'''
 import numpy as np
 from my_devs import li,station, dac_adc, agilent
 from time import sleep
@@ -30,8 +32,6 @@ dac_adc.set_voltage(3, 0) # Barrier 2
 # REGISTER THE PARAMETER FOR QCODES PLOTTING
 
 meas = Measurement(exp=exp, station=station)
-# dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
-# meas.register_parameter(dac_voltage)
 drain_voltage = Parameter('drain_voltage', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
 meas.register_parameter(drain_voltage)
 meas.register_parameter(li.R,setpoints=(drain_voltage,),paramtype='array')
@@ -115,13 +115,11 @@ li.sensitivity(500e-12)
 # START THE MEASUREMENT
 init = -2
 final = 2
-# for val in np.linspace(0, init, 10):
-#      source_voltage(val)
-source_voltage(init)
+drain_voltage(init)
 sleep(20)
 with meas.run() as datasaver:
     for set_point in tqdm(np.linspace(init, final,100)):
-        source_voltage(set_point)
+        drain_voltage(set_point)
         sleep(1.5)
         x.append(set_point)
         y.append(li.R())
@@ -130,7 +128,7 @@ with meas.run() as datasaver:
             li.sensitivity(sensitivity_list[i])
             sleep(1)
         sleep(0.1)
-        datasaver.add_result((source_voltage,set_point),(li.R,li.R())) 
+        datasaver.add_result((drain_voltage,set_point),(li.R,li.R())) 
         #datasaver.add_result((dac_voltage,set_point),(adc_voltage,adc_voltage()))
 
 #####################################################
@@ -144,10 +142,10 @@ with meas.run() as datasaver:
 
 
 combined1 = np.column_stack((x,y))
-np.savetxt('./GRAPHS/SET/source_bulk298_left.txt',combined1) #Introduce the name for the experiment
+np.savetxt('./GRAPHS/SET/drain_bulk298_left.txt',combined1) #Introduce the name for the experiment
 
 for val in np.linspace(final, 0, 10):
-    source_voltage(val)
+    drain_voltage(val)
 
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(2, 0)

@@ -1,4 +1,6 @@
-#import serial
+'''
+File to plot Coulomb peaks
+'''
 import numpy as np
 from my_devs import li,station, dac_adc, agilent
 from time import sleep
@@ -8,7 +10,7 @@ from qcodes import Measurement
 from tqdm import tqdm
 
 
-exp = load_or_create_experiment(experiment_name='SETs source-bulk 298 K', sample_name='right')
+exp = load_or_create_experiment(experiment_name='SETs gate-drain 25 K', sample_name='left')
 
 
 
@@ -19,10 +21,11 @@ dac_adc.is_device_ready()
 ###################################################3
 
 # SET CONSTANT VOLTAGES OF THE DAC
-dac_adc.set_voltage(0, 0) # lead gate 
 dac_adc.set_voltage(1, 0) # Bulk  
 dac_adc.set_voltage(2, 0) # Barrier 1
 dac_adc.set_voltage(3, 0) # Barrier 2
+agilent.set_offset(0) # Gate
+dac_adc.set_voltage(0, 0.1) # Source
 #####################################################
 
 #####################################################
@@ -30,11 +33,9 @@ dac_adc.set_voltage(3, 0) # Barrier 2
 # REGISTER THE PARAMETER FOR QCODES PLOTTING
 
 meas = Measurement(exp=exp, station=station)
-# dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(0, val),get_cmd=None)
-# meas.register_parameter(dac_voltage)
-source_voltage = Parameter('source_voltage', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
-meas.register_parameter(source_voltage)
-meas.register_parameter(li.R,setpoints=(source_voltage,),paramtype='array')
+gate_voltage = Parameter('gate_voltage', set_cmd=lambda val: agilent.set_offset(val),get_cmd=None)
+meas.register_parameter(gate_voltage)
+meas.register_parameter(li.R,setpoints=(gate_voltage,),paramtype='array')
 
 #####################################################
 
@@ -105,23 +106,23 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_curr.keys())
-i = 16
+i = 11
 x = []
 y  = []
-li.sensitivity(500e-12)
+li.sensitivity(10e-12)
 
 #####################################################
 
 # START THE MEASUREMENT
-init = -2
-final = 2
-# for val in np.linspace(0, init, 10):
-#      source_voltage(val)
-source_voltage(init)
-sleep(20)
+init = -1.5
+final = 1.5
+for val in np.linspace(0, init, 10):
+      gate_voltage(val)
+gate_voltage(init)
+sleep(30)
 with meas.run() as datasaver:
     for set_point in tqdm(np.linspace(init, final,100)):
-        source_voltage(set_point)
+        gate_voltage(set_point)
         sleep(1.5)
         x.append(set_point)
         y.append(li.R())
@@ -130,8 +131,7 @@ with meas.run() as datasaver:
             li.sensitivity(sensitivity_list[i])
             sleep(1)
         sleep(0.1)
-        datasaver.add_result((source_voltage,set_point),(li.R,li.R())) 
-        #datasaver.add_result((dac_voltage,set_point),(adc_voltage,adc_voltage()))
+        datasaver.add_result((gate_voltage,set_point),(li.R,li.R())) 
 
 #####################################################
 
@@ -144,10 +144,10 @@ with meas.run() as datasaver:
 
 
 combined1 = np.column_stack((x,y))
-np.savetxt('./GRAPHS/SET/source_bulk298_right.txt',combined1) #Introduce the name for the experiment
+np.savetxt('./GRAPHS/SET/gate_bulk25_left0407.txt',combined1) #Introduce the name for the experiment
 
 for val in np.linspace(final, 0, 10):
-    source_voltage(val)
+    gate_voltage(val)
 
 dac_adc.set_voltage(0, 0)
 dac_adc.set_voltage(2, 0)

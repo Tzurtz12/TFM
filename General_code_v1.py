@@ -2,6 +2,8 @@
 """
 Created 10/05/2024
 @author Urtzi Jauregi Aberasturi
+This code is the same as the DAC-ADC class but only with functions, so we can use them
+to eventually set voltages directly ferom here.
 """
 
 
@@ -53,6 +55,7 @@ def get_adc_voltage(channel):
     voltage = (ser.readline()).decode('utf-8', errors='ignore').split()
     #voltage = float(voltage[0])
     print(voltage)
+    #return (float(voltage[0]))
     #return voltage
 
 # Operation to ramp one channel from an initial voltage to a final voltage
@@ -113,9 +116,9 @@ def convert_time(channel,time):
 is_device_ready()
 get_device_id()
 
+
 set_voltage(0,0)
 set_voltage(1,0)
 set_voltage(2,0)
 set_voltage(3,0)
-ser.close()
 print("ended")

@@ -1,3 +1,6 @@
+'''
+Create the experimental station with the devices that will be used in the experiment.
+'''
 import qcodes as qc
 from qcodes.instrument_drivers.stanford_research.SR830 import SR830
 from DAC_ADC import DAC_ADC

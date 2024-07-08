@@ -1,7 +1,11 @@
-#import serial
+'''
+File to perform the barrier conductance experiment. The objective of this
+run is measuring the threshold values of the barrier gates. Once measured them, we should set
+the barrier voltage below these values in order to create the quantum dot in the channel.
+'''
 import matplotlib.pyplot as plt
 import numpy as np
-from my_devs import li,station, dac_adc
+from my_devs import li,station, dac_adc, agilent
 from time import sleep
 from qcodes import load_or_create_experiment
 from qcodes import Parameter
@@ -9,12 +13,12 @@ from qcodes import Measurement
 from tqdm import tqdm
 
 
+#create the experiment. It is important to set the sample name in order to save the data in the properly at .db files
+exp = load_or_create_experiment(experiment_name='barrier_conductance', sample_name='Right 40 K')
 
-exp = load_or_create_experiment(experiment_name='barrier_conductance', sample_name='Left 298K')
 
 
-
-#dac_adc = DAC_ADC(port='COM10', baudrate=115200, timeout=1)
+#Check the dac-adc device is ready to be used
 
 dac_adc.get_device_id()
 dac_adc.is_device_ready()
@@ -22,22 +26,22 @@ dac_adc.is_device_ready()
 ###################################################
 
 # SET CONSTANT VOLTAGES OF THE DAC: One barrier, Vds and Vg
-for val in np.linspace(0,1.5,10):
-    dac_adc.set_voltage(0,val) #lead gate
-dac_adc.set_voltage(3,0) #barrier 2
-dac_adc.set_voltage(2, 0) # Barrier 1
-#####################################################
+
+dac_adc.set_voltage(0,1.5) #lead gate above the threshold
+dac_adc.set_voltage(3,1.5) #barrier 2 above the threshold
+dac_adc.set_voltage(2, 0) # Barrier 1 (we will sweep this one)
+dac_adc.set_voltage(1, 0.1) # Vds
 
 #####################################################
 
-# REGISTER THE PARAMETER FOR QCODES PLOTTING
+#####################################################
+
+# REGISTER THE PARAMETERS FOR QCODES PLOTTING
 
 meas = Measurement(exp=exp, station=station)
-dac_voltage = Parameter('dac_voltage', set_cmd=lambda val: dac_adc.set_voltage(2, val),get_cmd=None)
-meas.register_parameter(dac_voltage)
-dac_voltage2 = Parameter('dac_voltage2', set_cmd=lambda val: dac_adc.set_voltage(3, val),get_cmd=None)
-meas.register_parameter(dac_voltage2)
-meas.register_parameter(li.R,setpoints=(dac_voltage,dac_voltage2),paramtype='array')
+barrier_voltage = Parameter('barrier_voltage', set_cmd=lambda val: agilent.set_offset(val) ,get_cmd=None)
+meas.register_parameter(barrier_voltage)
+meas.register_parameter(li.R,setpoints=(barrier_voltage,),paramtype='array')
 
 #####################################################
 
@@ -108,38 +112,35 @@ sensitivity_curr = {
     }
 
 sensitivity_list = list(sensitivity_curr.keys())
-i = 16
-x1 = []
-x2 = []
+i = 12
+x = []
 y  = []
-li.sensitivity(100e-12)
+li.sensitivity(20e-12) # 20 pA should be enough. However, we got the index i to change it if necessary
 
 
 #####################################################
 
-# START THE MEASUREMENT
-init = -0.1
-final = 0.1
+# START THE MEASUREMENT, set initial and final values of the barrier voltage
 
+init = 0
+final = 1.5
+steps = º
 
 
 
 with meas.run() as datasaver:
-    for set_point in tqdm(np.linspace(init,final,10)):
-        dac_voltage(set_point)
-        for set_point2 in tqdm(np.linspace(init,final,10)):
-            dac_voltage2(set_point2)
-            sleep(0.3)
-            x1.append(set_point)
-            x2.append(set_point2)
-            y.append(li.R())
-            if li.sensitivity() <= 1.5*li.R():
+    for set_point in tqdm(np.linspace(init,final,steps)):
+        barrier_voltage(set_point)
+        sleep(1)
+        x.append(set_point)
+        y.append(li.R())
+        if li.sensitivity() <= 1.5*li.R():
                 i+=1
                 li.sensitivity(sensitivity_list[i])
                 sleep(0.1)
-            datasaver.add_result((dac_voltage,set_point),(dac_voltage2,set_point2),(li.R,li.R()))
+        datasaver.add_result((barrier_voltage,set_point),(li.R,li.R()))
         for val in np.linspace(final, init, 10):
-            dac_voltage(val) 
+            barrier_voltage(val) 
 
 #####################################################
 
@@ -148,14 +149,18 @@ with meas.run() as datasaver:
 
 # SAVE THE DATA FOR MATPLOTLIB
 
-combined1 = np.column_stack((x1,x2,y))
-# combined2 = np.column_stack((x1,y2))
+combined1 = np.column_stack((y,x))
 np.savetxt('./GRAPHS/SET/barrier1_left.txt',combined1)
-# np.savetxt('./GRAPHS/combined2.txt',combined2)
 
-for val in np.linspace(1.5,0,10):
-    dac_adc.set_voltage(0,val)
-for val in np.linspace(final,0,10):
-    dac_adc.set_voltage(2,val)
+
+#####################################################
+
+# Set the dac values at 0 to protect the sample
+
+dac_adc.set_voltage(0,0)
+dac_adc.set_voltage(1,0)
+dac_adc.set_voltage(2,0)
+dac_adc.set_voltage(3,0)
+
 dac_adc.close()
 

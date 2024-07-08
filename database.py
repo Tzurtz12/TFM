@@ -1,6 +1,9 @@
+'''
+This one is just to create the database at our desired location
+'''
 from qcodes import initialise_or_create_database_at
 
-DATABASE_LOCATION = "./exp.db"
+DATABASE_LOCATION = "./exp.db" 
 
 
 
