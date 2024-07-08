@@ -43,6 +43,8 @@ However, the source-to drain current coul be visualized:
 As this MOSFETs show proper behaviour, it is expected that the SETs will also show good lead gate modulation.
 
 # SET characterization
+
+## Characterization at IMB-CNM
 As SET characterization involves complex setups, it is useful to test it before with other semiconductor devices, such as functional MOSFETs, to be sure it the station is ready to be used for SETs. Therefore, we tested the following setup to measure differential conductance of MOSFET devices at gate voltage sweeps.
 
 ![mosfet bias tee](./images/mosfet_lockin_biastee.png)
@@ -65,9 +67,32 @@ This case, we applied a 100 $\mu\text{V}$ and 171 Hz AC signal. Due to probe poi
 
 ## Characterization at UB
 
+To perform the measurements at UB, we employed GPIB and serial connections to control the experimental runs from the PC. The documentation of the scrips is done in the following lines:
+
+### Code documentation:
+
+Each script is explained shortly. More explanations are given in the files. To pot it in a general context, **Qcodes** libraries have been employed as it allows us to get the proper drivers of the instrumentation, gather it properly into a station to get proper simultaneous control of them. Moreover, we are able to plot live data with *plottr-inspectr* as it reads and plots the data. Additionally, it is possible to export the data of a given id run. Before running the codes, be certain the packages are downloaded in the python environment, I recommend downloading Anaconda to create a practical environment. You can download it from [Anaconda](https://docs.anaconda.com/anaconda/install/windows/ "Windows"). Once downloading, follow the steps to install and get ready qcodes libraries. A good explanation is found in [qcodes](https://microsoft.github.io/Qcodes/start/index.html "qcodes installation") where you can also find a short introduction to qcodes. At the beginning, it might be a bit annoying, as an extrict parameter implementation must be done, but once getting used to that, it is easy and very comfortable to use. I recommend writing the scripts on Visual Studio Code as it has a good communication with the terminals and kernel environments. Numpy and matplotlib are also required to be installed, but that can be directly done from the terminal "pip install ...". Here I will make a division between the instrumentation that already got drivers at qcodes and the ones that don't. If the drivers are already included at the library, it is straightforward to use them by importing (to see how it is done, chech *my_devs.py*). For instance, agilent 33220a is not included so I had to create a short class to manipulate the offset (the string for GPIB commands was found in the instrument manual).
+  -**agilent_33220a.py:** a class to communicate and set the offset of the agilent function generator. I used them to perform the lock-in dc offset sweeps.
+  -**DAC-ADC:** a dac-adc designed by [opendac](http://opendacs.com/dac-adc-homepage/ "Opendacs"), it allows us to perform several experimental actions. It operates with an Arduino Due that communicates with DAC and ADC evaluation boards. Every information about the device is given at [opendac](http://opendacs.com/dac-adc-homepage/ "Opendacs"). The file presents a class for the device to call the functions of the Arduino from python via serial string communication.
+The following files are used to get the station and datasets ready to perform:
+  -**my_devs.py:** gathers the instrumentation up. In my case the lock-in, the agilent source and the dac-adc.
+  -**database.py:** creates the .db database where we will save the runs.
+  -**plottr-inspectr** to plot live data, first plottr-inspectr must be downloaded in the conda environment (pip install plotr) [plottr](https://github.com/toolsforexperiments/plottr#inspectr-qcodes-dataset-inspection-and-live-plotting "install guide"). You can call it from the terminal GUI by writing plottr-inspectr and it should be launched. Then just load the database and every experimental run perfomed in the database will be shown, splitting them according to the days the runs were performed.
+  -**export_data.py:** once my codes include creating .txt files to save the data but it is easy to forget changing the names and getting the files overwritten. Thus, it is easier to export the data by applying this function. a .csv is created, so when reading the data to plot, the separation must be "\t" and not " ", as it is for .txt files.
+
+For experimental runs you will realize that the files are almost similar, just changing the initial and final values or the parameter names. Each file's name is the performed experimental run:
+  - **General_code_v1.py:** this code contains the same functions of the dac-adc class but without creating any class. It is the same though, but done before abd can be used to fix the values of the teminals.
+  -**Barrier_conductance.py:** file to perform the barrier conductance run.
+  -**Main_oscill.py:** file to perform coulomb oscillations run.
+  -**DC_mosfets.py:** DC run to measure mosfet characteristics.
+  -**Main_diamonds.py:** this code performs a 2D plot, so it slightly differs from others.
+
+To plot data, **plot_data.py** can be used. Just take care when introducing the separation depending on the file you are exporting. Within the jupiter notebook you can check the example plot is being done at each case.
+
+###
 To get the AC signal for the loc-in meaurements, at first we started by using the lock-in internal oscillator as the input signal as we could use it as reference for the signal mixing in the lock-in measurement process. We have several choices to couple a DC signal and the AC to perform sweeps thorugh in $V_{ds}$. On one side, we tried to introduce a T connector to couple both signals but it was not very optimal, a big part of the AC signal was lost through the DC ground and to avoid that an impedance (name) was introduced, but getting too much noise within the circuit. Another option is using the DAC-ADC as the design performed by Matias allowed to couple signals and control the sweep via channel 4 (3 in my coding program). However, the new signal was even more noisier. Finnaly, we decided to use an Agilent 33220A and use its sync output to use as the lock-in reference and allows an offset (that can be reduced to $\mu\text{V}$ scale). This way, by controlling it via GPIB we are able to perform voltage sweeps in mV scale to properly measure Coulomb Diamonds. 
 
-## Punch-Through measurements
+### Punch-Through measurements
 
 One of the problems we might get from the devies is the punch-through effect where, due to the big size of the depletion regions createn at the N-P junctions, a non desirable current channel can be created from source to drain. However, it was seen in simulations that this effect should be decreased with temperature. Thus, I performed several $V_{ds}$ sweeps with the same 4 $\mu\text{m}$ channel length MOSFET to see how the current varies. To do so, I left the gate lead in open circuit and got the following characteristic curves for different temperatures:
 ![MOSFET $I_{ds}$/$V_{ds}$ curves for different temperatures](./images/sweep_4micra.png)
@@ -78,9 +103,7 @@ Here I just built a simple class for the **Agilent_33220A** device. It is only u
 
 After measuring the values of the output signal with the lock-in I realized the peak to peak value stated in the is not exact. With the voltage divider of factor 667, we reduce the amplitude by 1000 more or less, so the peak to peak is slightly bigger than stated in the panel. The offset shown is also the double so we need to consider it when applying the voltage sweeps.
 
-## SET CHARACTERIZATION
 
-First step to 
 
 ## Characterization 01/07 with Gorka
 
