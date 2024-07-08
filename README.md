@@ -14,6 +14,7 @@ We performed DC I/V sweeps to check the functionality of the MOSFETs from the fi
 |:--:|
 | Source, drain and gate current vs $V_{g}$ |
 However, the source-to drain current coul be visualized:
+
 ![old sd](./images/oldsd.png)
 |:--:|
 | Source, drain and gate current vs $V_{sd}$ |
@@ -40,7 +41,7 @@ However, the source-to drain current coul be visualized:
 
 ![new sd](./images/dc_sourcedrain_sweep_13K.png)
 |:--:|
-| Source current vs \V_{sd} for different $V_{g}$.  Log y axis |
+| Source current vs $\V_{sd}$ for different $V_{g}$.  Log y axis |
 
 As this MOSFETs show proper behaviour, it is expected that the SETs will also show good lead gate modulation.
 
@@ -164,11 +165,12 @@ When reducing the temperature to 25 \textbf{K} we repeated the resistivity proce
 | Drain-Bulk current vs $V_{d}$ |
 
 Finally, we performed lead gate voltage sweeps, by introducing a 1 $\text{M}\Omega$ resistance in the gates to reduce the current through them (to avoid burning the devices), however a higher impedances should be used, unfortunately we didn't have them available. A 100 \textbf{mV} constant Source to Drain voltage was applied and an interensting behavior was observed looking like the gate threshold voltage was around 0.6 \textbf{V}, but without anything certain as it looks too noisy.
+
 ![$V_{g}vs$I_{ds}](./images/gate_Vds100mV.png)
 |:--:|
 | $V_{g}$ vs $I_{ds}$ |
 
-The last thing I did with these devices was measureing the parasitic diode in room temperatures to see if something changed.
+This plot shows how the gate pad and the silicon bulk are short-circuited as we are clearly seeing the silicon band gap (around 1.2 for 25 K). This might happen due to inefficient wire bonding breaking the field oxide. The last thing I did with these devices was measureing the parasitic diode in room temperatures to see if something changed.
 
 Device on the left:
 
