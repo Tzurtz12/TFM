@@ -126,7 +126,7 @@ The objective of this experimental run is, once checking the MOSFETs are functio
 
 ![barrier conductance](./images/barrier_angus.png)
 |:--:|
-| Barrier conductance |
+| Barrier conductance [1] |
 
  This way, we can set the barrier voltage in a set point where conductance seems to be forbidden, so below threshold.
 ### Coulomb diamonds and peaks:
@@ -140,7 +140,17 @@ Based on Angus et al, the diamonds should look like:
 
 ![setup diamonds](./images/diamonds.png)
 |:--:|
-| Coulomb diamonds |
+| Coulomb diamonds [1] |
+
+
+I tried to measure Coulomb diamonds by running the script on **Main_diamonds.py**, to perfome a 2D voltage sweep on V$_{sd}$ and V$_{g}$:
+
+![ diamonds](./images/diamondspy.png)
+|:--:|
+| Measured 2D plot |
+
+While the measurement was running, the cryostat had a small issue and temperature increased to 60 K, so the only relevant feature we could observe it was the growth of the punch-through effect and, thus, the higher current magnitude values.
+
 
 ## Characterization 01/07 with Gorka
 
@@ -194,6 +204,15 @@ Device on the right
 
 It can be seen that the current value is decreased by an order of magnitude in room temperature. Clearly something wrong is going on with cold temperatures, devices might suffer with the setup.
 
+
+
 ## Characterization 04/07
 
 First I started to measure DC currents with the ADC as it looks like Matias assembled a current to volt converter within extra components in the ADC. To do so, by introducing 100 \textbf{mV} in a 100 $\text{k}\Omega$ resistor, I measured
+
+
+## Bibliography:
+
+[1] Susan J Angus, Andrew J Ferguson, Andrew S Dzurak, and Robert G Clark.
+**Gate-defined quantum dots in intrinsic silicon**. *Nano letters, 7(7):2051–2055*,
+2007.
