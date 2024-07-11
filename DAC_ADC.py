@@ -66,7 +66,7 @@ class DAC_ADC:
         Operation to ramp one channel from an initial voltage to a final voltage
         '''
         command = f"RAMP1\n,\n{channel}\n,\n{initial_voltage}\n,\n{final_voltage}\n,\n{num_steps}\n,\n{delay_microseconds}\n\r"
-        self.ser.write(command.encode())
+        self.ser. write(command.encode())
 
     def ramp_channels(self, channel1, channel2, initial_voltage1, initial_voltage2, final_voltage1, final_voltage2, num_steps, delay_microseconds):
         '''
