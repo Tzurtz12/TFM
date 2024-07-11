@@ -15,4 +15,4 @@ The first step to communicate with the dac-adc is uploading the drivers to the A
 device = DAC_ADC(port,baudrate,timeout)
 Introduce the proper USB port, baudrate (arduino baudrate) and timeout. (These last 2 at your wish)
 
-Then the functions can be commanded. A little example is being done at **com_withdac.py**. Open the **DAC-ADC.py** file to check the available functions for DAC and ADC. Each function is properly explained.
+Then the functions can be commanded. A little example is done at **com_withdac.py**. Open the **DAC-ADC.py** file to check the available functions for DAC and ADC. Each function is properly explained.
